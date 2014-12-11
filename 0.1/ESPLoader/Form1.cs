@@ -1,5 +1,5 @@
 ﻿//if you want to use the generic comm port driver, comment out the following line
-#define USE_FTD_DRIVER
+//#define USE_FTD_DRIVER
 
 using System;
 using System.Collections.Generic;
@@ -12,8 +12,7 @@ using System.Windows.Forms;
 using System.Threading;
 using FTD2XX_NET;
 using System.IO;
-
-
+using System.IO.Ports;
 
 namespace ESPLoader
 {
@@ -75,6 +74,25 @@ namespace ESPLoader
         public Form1()
         {
             InitializeComponent();
+
+            //list available COM ports
+            foreach (string s in SerialPort.GetPortNames())
+            {
+                cboPorts.Items.Add(s);
+            }
+            #if !USE_FTD_DRIVER
+            //determine if there's a device for us to connect to
+            if (cboPorts.Items.Count == 0)
+            {
+                cboPorts.Text = "No Device Found!";
+                btnOpen.Enabled = false;
+            }
+            else
+            {
+                cboPorts.SelectedIndex = 0;
+                btnOpen.Enabled = true;
+            }
+            #endif
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -103,7 +121,7 @@ namespace ESPLoader
                 //so lets catch the failure.
                 try
                 {
-                    esp_programmer = new COMPort("COM2", ESP_BOOTLOADER_BAUD);
+                    esp_programmer = new COMPort(cboPorts.SelectedItem.ToString(), ESP_BOOTLOADER_BAUD);
                     log.AppendText("COM Port Opened");
                     btnOpen.Enabled = false;
                 }
@@ -172,7 +190,7 @@ namespace ESPLoader
             Thread.Sleep(500);
             flash_chunks(0x00000, file1);
             log.AppendText("Flash part 1 done\r\n");
-            flash_chunks(0x40000, file2);
+            flash_chunks(0x01000, file2);
             log.AppendText("Flash part 2 done\r\n");
 
 
@@ -210,8 +228,8 @@ namespace ESPLoader
                 f1.Text = "";
             }
 
-            openFileDialog.Title = "Select 0x40000.bin file";
-            openFileDialog.FileName = "0x40000.bin";
+            openFileDialog.Title = "Select 0x01000.bin file";
+            openFileDialog.FileName = "0x01000.bin";
             result = openFileDialog.ShowDialog();
             file = openFileDialog.FileName;
             try
