@@ -283,7 +283,7 @@ namespace ESPLoader
                 StringBuilder hex = new StringBuilder((int)len * 3);
                 for (x = 0; x < len_ret; x++)
                 {
-                    hex.AppendFormat(" {0:x2}", rxdata[x]);
+                    hex.AppendFormat(" {0:x2}", data[x]);
                 }
                 log.AppendText(hex.ToString() + "\r\n");
             }
@@ -412,7 +412,7 @@ namespace ESPLoader
             log.AppendText("File is split up in " + blocks + " chunks of " + ESP_FLASH_BLOCK + " Length\r\n");
             for (seq = 0; seq < blocks; seq++)
             {
-
+                Application.DoEvents();
                 log.AppendText("Sending chunk [" + (seq + 1) + "/" + blocks + "]\r\n");
                 len = flashdata.Length - (seq * ESP_FLASH_BLOCK);
 
