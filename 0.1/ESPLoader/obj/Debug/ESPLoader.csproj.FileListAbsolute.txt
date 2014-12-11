@@ -8,3 +8,13 @@ C:\Users\Mathijs\Documents\Visual Studio 2008\Projects\ESPLoader\ESPLoader\bin\D
 C:\Users\Mathijs\Documents\Visual Studio 2008\Projects\ESPLoader\ESPLoader\bin\Debug\FTD2XX_NET.xml
 C:\Users\Mathijs\Documents\Visual Studio 2008\Projects\ESPLoader\ESPLoader\obj\Debug\ESPLoader.exe
 C:\Users\Mathijs\Documents\Visual Studio 2008\Projects\ESPLoader\ESPLoader\obj\Debug\ESPLoader.pdb
+C:\Users\Jonathan\Documents\esploader\0.1\ESPLoader\obj\Debug\ESPLoader.exe
+C:\Users\Jonathan\Documents\esploader\0.1\ESPLoader\obj\Debug\ESPLoader.pdb
+C:\Users\Jonathan\Documents\esploader\0.1\ESPLoader\bin\Debug\ESPLoader.exe
+C:\Users\Jonathan\Documents\esploader\0.1\ESPLoader\bin\Debug\ESPLoader.pdb
+C:\Users\Jonathan\Documents\esploader\0.1\ESPLoader\bin\Debug\FTD2XX_NET.dll
+C:\Users\Jonathan\Documents\esploader\0.1\ESPLoader\bin\Debug\FTD2XX_NET.xml
+C:\Users\Jonathan\Documents\esploader\0.1\ESPLoader\obj\Debug\ESPLoader.csprojResolveAssemblyReference.cache
+C:\Users\Jonathan\Documents\esploader\0.1\ESPLoader\obj\Debug\ESPLoader.Form1.resources
+C:\Users\Jonathan\Documents\esploader\0.1\ESPLoader\obj\Debug\ESPLoader.Properties.Resources.resources
+C:\Users\Jonathan\Documents\esploader\0.1\ESPLoader\obj\Debug\ESPLoader.csproj.GenerateResource.Cache
