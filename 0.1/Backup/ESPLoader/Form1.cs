@@ -1,7 +1,4 @@
-﻿//if you want to use the generic comm port driver, comment out the following line
-//#define USE_FTD_DRIVER
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,25 +9,18 @@ using System.Windows.Forms;
 using System.Threading;
 using FTD2XX_NET;
 using System.IO;
-using System.IO.Ports;
 
 namespace ESPLoader
 {
     public partial class Form1 : Form
     {
         // Create FTDI handle
-
-    #if USE_FTD_DRIVER
         FTDI esp = new FTDI();
         FTDI.FT_STATUS status = new FTDI.FT_STATUS();
 
         // Name of your FTDI device. Mine is called TTL232R-3V3. Might be
         // be 'USB-Serial Converter' on other cables.
         const string FTDI_Description = "TTL232R-3V3";
-    #else
-        // Hold our com port object here
-        private COMPort esp_programmer;
-    #endif
 
         // These defines values are taken from esptool.py
         const byte ESP_FLASH_BEGIN = 0x02;
@@ -53,11 +43,9 @@ namespace ESPLoader
         const int ESP_ROM_BAUD = 115200;
 
         // variables for the FTDI device
-        #if USE_FTD_DRIVER
-            uint RxQueue = 0;
-            uint numBytesRead = 0;
-            uint numBytesWritten = 0;
-        #endif
+        uint RxQueue = 0;
+        uint numBytesRead = 0;
+        uint numBytesWritten = 0;
 
         // Global variables
         int CorrectReply = 0;
@@ -74,25 +62,6 @@ namespace ESPLoader
         public Form1()
         {
             InitializeComponent();
-
-            //list available COM ports
-            foreach (string s in SerialPort.GetPortNames())
-            {
-                cboPorts.Items.Add(s);
-            }
-            #if !USE_FTD_DRIVER
-            //determine if there's a device for us to connect to
-            if (cboPorts.Items.Count == 0)
-            {
-                cboPorts.Text = "No Device Found!";
-                btnOpen.Enabled = false;
-            }
-            else
-            {
-                cboPorts.SelectedIndex = 0;
-                btnOpen.Enabled = true;
-            }
-            #endif
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -101,83 +70,51 @@ namespace ESPLoader
         }
 
         private void btnOpen_Click(object sender, EventArgs e)
-        {   
-            #if USE_FTD_DRIVER
-                status = esp.OpenByDescription(FTDI_Description);
-                esp.SetBaudRate(ESP_BOOTLOADER_BAUD);
-                Console.WriteLine(status);
-                if (status == FTDI.FT_STATUS.FT_OK)
-                {
-                    log.AppendText("Port open success!\r\n");
-                    esp.SetTimeouts(250, 250);
-                    timer1.Enabled = true;
-                }
-                else
-                {
-                    log.AppendText("Error opening port: " + status + "\r\n");
-                }
-            #else
-                //creating the com port object opens it immediately, so it will fail if the com port is not available (not connected or opened in another program)
-                //so lets catch the failure.
-                try
-                {
-                    esp_programmer = new COMPort(cboPorts.SelectedItem.ToString(), ESP_BOOTLOADER_BAUD);
-                    log.AppendText("COM Port Opened");
-                    btnOpen.Enabled = false;
-                }
-                catch
-                {
-                    log.AppendText("Failed to open COM Port Opened. Another application is using it.");
-                }
-            #endif
+        {
+            status = esp.OpenByDescription(FTDI_Description);
+            esp.SetBaudRate(ESP_BOOTLOADER_BAUD);
+            Console.WriteLine(status);
+            if (status == FTDI.FT_STATUS.FT_OK)
+            {
+                log.AppendText("Port open success!\r\n");
+                esp.SetTimeouts(250, 250);
+                timer1.Enabled = true;
+            }
+            else
+            {
+                log.AppendText("Error opening port: " + status + "\r\n");
+            }
         }
 
         private void btnClose_Click(object sender, EventArgs e)
         {
-            #if USE_FTD_DRIVER
-                status = esp.Close();
-                Console.WriteLine(status);
-                if (status == FTDI.FT_STATUS.FT_OK)
-                {
-                    log.AppendText("Closing port!\r\n");
+            status = esp.Close();
+            Console.WriteLine(status);
+            if (status == FTDI.FT_STATUS.FT_OK)
+            {
+                log.AppendText("Closing port!\r\n");
 
-                }
-                else
-                {
-                    log.AppendText("Error closing port: " + status + "\r\n");
-                }
-            #else
-                esp_programmer.Disconnect();
-                Console.WriteLine("COM Port Closed");
-                btnOpen.Enabled = true;
-            #endif
+            }
+            else
+            {
+                log.AppendText("Error closing port: " + status + "\r\n");
+            }
         }
 
         private void btnReset_Click(object sender, EventArgs e)
         {
-            #if USE_FTD_DRIVER
-                log.AppendText("Reset ESP8266 (RTS)\r\n");
-                esp.SetRTS(false);
-                Thread.Sleep(250);
-                esp.SetRTS(true);
-            #endif
+            log.AppendText("Reset ESP8266 (RTS)\r\n");
+            esp.SetRTS(false);
+            Thread.Sleep(250);
+            esp.SetRTS(true);
         }
 
         private void btnFlash_Click(object sender, EventArgs e)
         {
-            #if USE_FTD_DRIVER
             timer1.Enabled = false;
-            #endif
-
             Thread.Sleep(500);
             log.AppendText("Connecting to target..\r\n");
-            
-            #if USE_FTD_DRIVER
-                esp.SetBaudRate(ESP_ROM_BAUD);
-            #else
-                esp_programmer.ChangeBaudRate(ESP_ROM_BAUD);
-            #endif
-            
+            esp.SetBaudRate(ESP_ROM_BAUD);
             sync();
 
             if (CorrectReply == 0)
@@ -190,21 +127,14 @@ namespace ESPLoader
             Thread.Sleep(500);
             flash_chunks(0x00000, file1);
             log.AppendText("Flash part 1 done\r\n");
-            flash_chunks(0x01000, file2);
+            flash_chunks(0x40000, file2);
             log.AppendText("Flash part 2 done\r\n");
 
 
             flash_finish(0);
             log.AppendText("Finished\r\n");
-            
-            
-            
-            #if USE_FTD_DRIVER
-                esp.SetBaudRate(ESP_USER_BAUD);
-                timer1.Enabled = true;
-            #else
-                esp_programmer.ChangeBaudRate(ESP_USER_BAUD);
-            #endif
+            esp.SetBaudRate(ESP_USER_BAUD);
+            timer1.Enabled = true;
         }
 
         private void btnOpenFiles_Click(object sender, EventArgs e)
@@ -228,8 +158,8 @@ namespace ESPLoader
                 f1.Text = "";
             }
 
-            openFileDialog.Title = "Select 0x01000.bin file";
-            openFileDialog.FileName = "0x01000.bin";
+            openFileDialog.Title = "Select 0x40000.bin file";
+            openFileDialog.FileName = "0x40000.bin";
             result = openFileDialog.ShowDialog();
             file = openFileDialog.FileName;
             try
@@ -250,18 +180,16 @@ namespace ESPLoader
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            #if USE_FTD_DRIVER
-                esp.GetRxBytesAvailable(ref RxQueue);
-                if (RxQueue > 0)
-                {
-                    Array.Clear(data, 0, 1024);
-                    esp.Read(data, RxQueue, ref numBytesRead);
-                    var str = System.Text.Encoding.Default.GetString(data);
-                    Console.WriteLine(numBytesRead);
-                    log.AppendText(str);
+            esp.GetRxBytesAvailable(ref RxQueue);
+            if (RxQueue > 0)
+            {
+                Array.Clear(data, 0, 1024);
+                esp.Read(data, RxQueue, ref numBytesRead);
+                var str = System.Text.Encoding.Default.GetString(data);
+                Console.WriteLine(numBytesRead);
+                log.AppendText(str);
 
-                }
-            #endif
+            }
         }
 
         private void write(byte[] data, int len)
@@ -277,11 +205,7 @@ namespace ESPLoader
                 else { txdata[i++] = data[x]; }
             }
             txdata[i++] = 0xC0;
-            #if USE_FTD_DRIVER
-                esp.Write(txdata, i, ref numBytesWritten);
-            #else
-                esp_programmer.write(txdata, 0x00, i);
-            #endif
+            esp.Write(txdata, i, ref numBytesWritten);
 
         }
 
@@ -292,21 +216,11 @@ namespace ESPLoader
 
             while (i < len)
             {
-                #if USE_FTD_DRIVER
-                    esp.Read(rxdata, 1, ref numBytesRead);
-                #else
-                    byte[] rxdata;
-                    rxdata = esp_programmer.read(0x00, 1);
-                #endif
+                esp.Read(rxdata, 1, ref numBytesRead);
                 c = rxdata[0];
                 if (c == 0xDB)
                 {
-                    #if USE_FTD_DRIVER
-                        esp.Read(rxdata, 1, ref numBytesRead);
-                    #else
-                        rxdata = esp_programmer.read(0x00, 1);
-                    #endif
-
+                    esp.Read(rxdata, 1, ref numBytesRead);
                     c = rxdata[0];
                     if (c == 0xDC) { data[i++] = 0xC0; }
                     else if (c == 0xDD) { data[i++] = 0xDB; }
@@ -331,7 +245,7 @@ namespace ESPLoader
             return chk;
         }
 
-        private void command(byte cmd, byte[] cdata, int len, int chk, bool ignore_err = false)
+        private void command(byte cmd, byte[] cdata, int len, int chk)
         {
             CorrectReply = 0;
             int i = 0;
@@ -365,17 +279,13 @@ namespace ESPLoader
             read(data, len_ret);
             if (len_ret != 2 || data[0] != 0x00 || data[1] != 0x00) // Something bad happened
             {
-                //this is a sloppy patch to ignore the false raising of errors on flash_finish()
-                if (!ignore_err)
+                log.AppendText("Failure: got " + len_ret + "Bytes of data: ");
+                StringBuilder hex = new StringBuilder((int)len * 3);
+                for (x = 0; x < len_ret; x++)
                 {
-                    log.AppendText("Failure: got " + len_ret + "Bytes of data: ");
-                    StringBuilder hex = new StringBuilder((int)len * 3);
-                    for (x = 0; x < len_ret; x++)
-                    {
-                        hex.AppendFormat(" {0:x2}", data[x]);
-                    }
-                    log.AppendText(hex.ToString() + "\r\n");
+                    hex.AppendFormat(" {0:x2}", data[x]);
                 }
+                log.AppendText(hex.ToString() + "\r\n");
             }
 
 
@@ -393,13 +303,8 @@ namespace ESPLoader
         private void sync()
         {
             int x;
-            #if USE_FTD_DRIVER
-                esp.Purge(FTDI.FT_PURGE.FT_PURGE_RX);
-                esp.Purge(FTDI.FT_PURGE.FT_PURGE_TX);
-            #else
-                esp_programmer.DiscardBuffers();
-            #endif
-
+            esp.Purge(FTDI.FT_PURGE.FT_PURGE_RX);
+            esp.Purge(FTDI.FT_PURGE.FT_PURGE_TX);
             cmddata[0] = 0x07;
             cmddata[1] = 0x07;
             cmddata[2] = 0x12;
@@ -417,21 +322,10 @@ namespace ESPLoader
 
         private void flash_begin(int ImageLen, int Address)
         {
-            #if USE_FTD_DRIVER
-                esp.Purge(FTDI.FT_PURGE.FT_PURGE_RX);
-                esp.Purge(FTDI.FT_PURGE.FT_PURGE_TX);
-            #else
-                esp_programmer.DiscardBuffers();
-            #endif
-
+            esp.Purge(FTDI.FT_PURGE.FT_PURGE_RX);
+            esp.Purge(FTDI.FT_PURGE.FT_PURGE_TX);
             int i = 0;
-
-            #if USE_FTD_DRIVER
-                esp.SetTimeouts(10000, 10000);
-            #else
-                esp_programmer.ChangeTimeouts(10000, 10000);
-            #endif
-            
+            esp.SetTimeouts(10000, 10000);
             cmddata[i++] = (byte)((ImageLen & 0xFF));
             cmddata[i++] = (byte)((ImageLen >> 8) & 0xFF);
             cmddata[i++] = (byte)((ImageLen >> 16) & 0xFF);
@@ -449,32 +343,16 @@ namespace ESPLoader
             cmddata[i++] = (byte)((Address >> 16) & 0xFF);
             cmddata[i++] = (byte)((Address >> 24) & 0xFF);
             command(ESP_FLASH_BEGIN, cmddata, i, 0);
-            
-            #if USE_FTD_DRIVER
-                esp.SetTimeouts(250, 250);
-            #else
-                esp_programmer.ChangeTimeouts(250, 250);
-            #endif
+            esp.SetTimeouts(250, 250);
         }
 
         private void flash_block(int DataLen, int Sequence)
         {
-            #if USE_FTD_DRIVER
-                esp.Purge(FTDI.FT_PURGE.FT_PURGE_RX);
-                esp.Purge(FTDI.FT_PURGE.FT_PURGE_TX);
-            #else
-                esp_programmer.DiscardBuffers();
-            #endif
-
+            esp.Purge(FTDI.FT_PURGE.FT_PURGE_RX);
+            esp.Purge(FTDI.FT_PURGE.FT_PURGE_TX);
             int i = 0;
             int x = 0;
-
-            #if USE_FTD_DRIVER
-                esp.SetTimeouts(1000, 1000);
-            #else
-                esp_programmer.ChangeTimeouts(1000, 1000);
-            #endif
-
+            esp.SetTimeouts(1000, 1000);
             cmddata[i++] = (byte)((DataLen & 0xFF));
             cmddata[i++] = (byte)((DataLen >> 8) & 0xFF);
             cmddata[i++] = (byte)((DataLen >> 16) & 0xFF);
@@ -496,33 +374,18 @@ namespace ESPLoader
                 cmddata[i++] = data[x];
             }
             command(ESP_FLASH_DATA, cmddata, i, (int)(checksum(DataLen)));
+            esp.SetTimeouts(250, 250);
 
-            #if USE_FTD_DRIVER
-                esp.SetTimeouts(250, 250);
-            #else
-                esp_programmer.ChangeTimeouts(250, 250);
-            #endif
+
 
         }
 
         private void flash_finish(int reboot)
         {
-            #if USE_FTD_DRIVER
-                esp.Purge(FTDI.FT_PURGE.FT_PURGE_RX);
-                esp.Purge(FTDI.FT_PURGE.FT_PURGE_TX);
-            #else
-                esp_programmer.DiscardBuffers();
-            #endif
-
+            esp.Purge(FTDI.FT_PURGE.FT_PURGE_RX);
+            esp.Purge(FTDI.FT_PURGE.FT_PURGE_TX);
             int i = 0;
-
-            #if USE_FTD_DRIVER
-                esp.SetTimeouts(10000, 10000);
-            #else
-                esp_programmer.ChangeTimeouts(10000, 10000);
-            #endif
-
-
+            esp.SetTimeouts(10000, 10000);
             if (reboot == 0)
             {
                 cmddata[i++] = 0x01;
@@ -534,14 +397,8 @@ namespace ESPLoader
             cmddata[i++] = 0;
             cmddata[i++] = 0;
             cmddata[i++] = 0;
-            command(ESP_FLASH_END, cmddata, i, 0, true); //the true will make it stop reporting false (and real) errors at the end
-
-            #if USE_FTD_DRIVER
-                esp.SetTimeouts(250, 250);
-            #else
-                esp_programmer.ChangeTimeouts(250, 250);
-            #endif
-
+            command(ESP_FLASH_END, cmddata, i, 0);
+            esp.SetTimeouts(250, 250);
         }
 
         private void flash_chunks(int offset, byte[] flashdata)
