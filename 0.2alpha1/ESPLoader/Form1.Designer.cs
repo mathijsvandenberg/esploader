@@ -51,12 +51,12 @@
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutESPLoaderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.tabConsole = new System.Windows.Forms.TabPage();
+            this.tabTCPServer = new System.Windows.Forms.TabPage();
             this.groupBox1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
-            this.tabPage1.SuspendLayout();
+            this.tabConsole.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnFlash
@@ -111,6 +111,9 @@
             // 
             // log
             // 
+            this.log.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.log.BackColor = System.Drawing.Color.Black;
             this.log.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.log.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
@@ -161,10 +164,6 @@
             this.pb.Step = 1;
             this.pb.TabIndex = 13;
             // 
-            // timer1
-            // 
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
             // openFileDialog
             // 
             this.openFileDialog.FileName = "openFileDialog1";
@@ -178,6 +177,7 @@
             this.groupBox1.TabIndex = 18;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Programming interface";
+            this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
             // 
             // cboPorts
             // 
@@ -186,7 +186,6 @@
             this.cboPorts.Name = "cboPorts";
             this.cboPorts.Size = new System.Drawing.Size(165, 21);
             this.cboPorts.TabIndex = 0;
-            this.cboPorts.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             this.cboPorts.DropDown += new System.EventHandler(this.cboPorts_DropDown);
             // 
             // menuStrip1
@@ -212,7 +211,7 @@
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(92, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -239,39 +238,43 @@
             // 
             // tabControl1
             // 
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabControl1.Controls.Add(this.tabConsole);
+            this.tabControl1.Controls.Add(this.tabTCPServer);
             this.tabControl1.Location = new System.Drawing.Point(192, 39);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(438, 283);
             this.tabControl1.TabIndex = 21;
             // 
-            // tabPage1
+            // tabConsole
             // 
-            this.tabPage1.Controls.Add(this.log);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(430, 257);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Console";
-            this.tabPage1.UseVisualStyleBackColor = true;
+            this.tabConsole.Controls.Add(this.log);
+            this.tabConsole.Location = new System.Drawing.Point(4, 22);
+            this.tabConsole.Name = "tabConsole";
+            this.tabConsole.Padding = new System.Windows.Forms.Padding(3);
+            this.tabConsole.Size = new System.Drawing.Size(430, 257);
+            this.tabConsole.TabIndex = 0;
+            this.tabConsole.Text = "Console";
+            this.tabConsole.UseVisualStyleBackColor = true;
             // 
-            // tabPage2
+            // tabTCPServer
             // 
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(430, 257);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "TCP Server";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.tabTCPServer.Location = new System.Drawing.Point(4, 22);
+            this.tabTCPServer.Name = "tabTCPServer";
+            this.tabTCPServer.Padding = new System.Windows.Forms.Padding(3);
+            this.tabTCPServer.Size = new System.Drawing.Size(430, 257);
+            this.tabTCPServer.TabIndex = 1;
+            this.tabTCPServer.Text = "TCP Server";
+            this.tabTCPServer.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(642, 330);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.groupBox1);
@@ -294,8 +297,8 @@
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.tabControl1.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
-            this.tabPage1.PerformLayout();
+            this.tabConsole.ResumeLayout(false);
+            this.tabConsole.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -325,8 +328,8 @@
         private System.Windows.Forms.ToolStripMenuItem aboutESPLoaderToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage tabConsole;
+        private System.Windows.Forms.TabPage tabTCPServer;
     }
 }
 

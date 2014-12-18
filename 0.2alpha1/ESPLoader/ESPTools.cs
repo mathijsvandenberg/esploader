@@ -55,12 +55,12 @@ namespace ESPLoader
         //events
         public event System.EventHandler<EventArgs> StatusChange;
 
-        public ESP8266ProgrammingTool(InterfacePort port)
+        public ESP8266ProgrammingTool()
         {
             BinFiles = new List<SourceFile>();
             Log = new List<string>();
-            _port = port;
-            _commport_str = port.Portname;
+
+            
             UpdateStatus("Ready!");
         }
 
@@ -82,6 +82,14 @@ namespace ESPLoader
             
         }
 
+        public void SetInterface(ref InterfacePort port)
+        {
+            _port = port;
+            _commport_str = port.Portname;
+
+        }
+
+
         public void Reset()
         {
             BinFiles.Clear();
@@ -101,19 +109,7 @@ namespace ESPLoader
             PercentComplete = 0;
             Log.Clear();
 
-            UpdateStatus("Begginning Flash Programming!");
-
-            try
-            {
-                //_commport = new COMPort(_commport_str, ESP_ROM_BAUD);
-            }
-            catch
-            {
-                _port.Close();
-                _port = null;
-                UpdateStatus("Failed to open comm port!");
-                return false;
-            }
+            UpdateStatus("Beginning Flash Programming!");
 
             UpdateStatus("Refreshing Source Files...");
 
@@ -123,9 +119,6 @@ namespace ESPLoader
                 if(!BinFiles[i].isValid)
                 {
                     UpdateStatus("Problem reading Source File + " + BinFiles[i].Filepath);
-
-                    _port.Close();
-                    _port = null;
                     return false;
                 }
             }
@@ -152,13 +145,12 @@ namespace ESPLoader
             if(!isSyncSuccessful)
             {
                 UpdateStatus("Could not sync to ESP8266 after multiple tries, giving up!");
-                _port.Close();
                 return false;
             }
 
             UpdateStatus("Synced...");
             Thread.Sleep(500);
-            
+
             for (int i = 0; i < BinFiles.Count; i++ )
             {
                 SourceFile currentfile = BinFiles[i];
@@ -169,8 +161,6 @@ namespace ESPLoader
             flash_finish(0);
             UpdateStatus("Finished");
 
-            _port.Close();
-            _port = null;
 
             return true;
         }

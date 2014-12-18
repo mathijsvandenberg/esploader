@@ -51,7 +51,7 @@ namespace ESPLoader
         }
 
 
-        public void Open()
+        public override void Open()
         {
             _serialPort.Open();
         }
@@ -63,13 +63,13 @@ namespace ESPLoader
             return 0;
         }
 
-        public void ChangeTimeouts(int read_timeout, int write_timeout)
+        public override void ChangeTimeouts(int read_timeout, int write_timeout)
         {
             _serialPort.ReadTimeout = read_timeout;
             _serialPort.WriteTimeout = write_timeout;
         }
 
-        public void ChangeBaudRate(int new_baud_rate)
+        public override void ChangeBaudRate(int new_baud_rate)
         {
             Close();
 
@@ -109,7 +109,7 @@ namespace ESPLoader
             
         }
 
-        public string read()
+        public override string read()
         {
             int len = _serialPort.BytesToRead;
             char[] buffer = new char[len];
@@ -132,16 +132,16 @@ namespace ESPLoader
                 return null;
             }
         
-        }
+        }        
 
         //send a string over the com port
-        public void WriteLine(string message)
+        public override void WriteLine(string message)
         {
             _serialPort.WriteLine(message);
         }
 
         //try reading a string from the com port
-        public string ReadLine()
+        public override string ReadLine()
         {
             string message;
 

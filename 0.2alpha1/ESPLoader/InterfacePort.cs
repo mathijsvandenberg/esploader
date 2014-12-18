@@ -9,7 +9,6 @@ namespace ESPLoader
     {
 
         public String Portname;
-
        //constructor
         public InterfacePort()
         {
@@ -25,10 +24,38 @@ namespace ESPLoader
             return -1;
         }
 
+        public virtual void Open()
+        {
+
+        }
+
         public virtual int Close()
         {
             return -1;
         }
+
+        public virtual void ChangeBaudRate(int new_baud_rate)
+        {
+            
+        }
+
+        public virtual void WriteLine(string message)
+        {
+
+        }
+
+        public virtual string ReadLine()
+        {
+            return "";
+        }
+
+        public virtual string read()
+        {
+            return "";
+        }
+
+
+
 
         public virtual void Reset()
         {
